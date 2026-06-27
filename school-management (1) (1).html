@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Management System</title>
+<style>
+/* ===== RESET & ROOT ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #1a237e;
+  --primary2: #283593;
+  --accent:  #e53935;
+  --gold:    #f9a825;
+  --green:   #2e7d32;
+  --teal:    #00695c;
+  --bg:      #eef2ff;
+  --card:    #ffffff;
+  --text:    #1a1a2e;
+  --muted:   #6b7280;
+  --border:  #e2e8f0;
+  --sidebar: 255px;
+  --topbar:  62px;
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: var(--sidebar); background: var(--primary); color: #fff;
+  position: fixed; top: 0; left: 0; height: 100vh;
+  display: flex; flex-direction: column; z-index: 200; overflow-y: auto;
+}
+.sb-logo { padding: 22px 18px 16px; border-bottom: 1px solid rgba(255,255,255,.13); }
+.sb-logo h2 { font-size: 15px; font-weight: 700; line-height: 1.4; }
+.sb-logo p  { font-size: 11px; color: rgba(255,255,255,.55); margin-top: 2px; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+             color: rgba(255,255,255,.38); padding: 14px 18px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px; padding: 11px 18px;
+  cursor: pointer; font-size: 13.5px; color: rgba(255,255,255,.78);
+  transition: background .14s; border-left: 3px solid transparent;
+}
+.nav-item:hover   { background: rgba(255,255,255,.09); }
+.nav-item.active  { background: rgba(255,255,255,.15); color: #fff; font-weight: 600; border-left-color: var(--gold); }
+.nav-item .ico    { font-size: 17px; width: 20px; text-align: center; }
+.sb-foot { margin-top: auto; padding: 14px 18px; border-top: 1px solid rgba(255,255,255,.12);
+           font-size: 11px; color: rgba(255,255,255,.4); }
+
+/* ===== MAIN ===== */
+.main    { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; }
+.topbar  {
+  background: #fff; height: var(--topbar); padding: 0 26px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+}
+.topbar h1 { font-size: 17px; font-weight: 700; color: var(--primary); }
+.avatar    { width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
+             color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+
+/* ===== CONTENT ===== */
+.content { padding: 26px; flex: 1; }
+.page    { display: none; }
+.page.active { display: block; }
+.pg-title { font-size: 20px; font-weight: 800; color: var(--primary); }
+.pg-sub   { font-size: 12.5px; color: var(--muted); margin: 3px 0 22px; }
+
+/* ===== STATS ROW ===== */
+.stats-row { display: grid; gap: 16px; margin-bottom: 24px; }
+.stats-4   { grid-template-columns: repeat(4,1fr); }
+.stats-3   { grid-template-columns: repeat(3,1fr); }
+.stat-card { background: #fff; border-radius: 12px; padding: 20px 18px;
+             box-shadow: 0 1px 5px rgba(0,0,0,.07); display: flex; align-items: center; gap: 15px; }
+.st-icon   { width: 50px; height: 50px; border-radius: 11px; font-size: 22px;
+             display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.st-icon.blue  { background: #e3f0ff; }
+.st-icon.green { background: #e8f5e9; }
+.st-icon.gold  { background: #fff8e1; }
+.st-icon.red   { background: #fce4e4; }
+.st-info p  { font-size: 11.5px; color: var(--muted); margin-bottom: 3px; }
+.st-info h3 { font-size: 24px; font-weight: 700; }
+
+/* ===== CARD ===== */
+.card { background: #fff; border-radius: 12px; padding: 22px;
+        box-shadow: 0 1px 5px rgba(0,0,0,.07); margin-bottom: 20px; }
+.card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-size: 14.5px; font-weight: 700; }
+.card-sub   { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+/* ===== GRIDS ===== */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* ===== TABLE ===== */
+.tbl-wrap { overflow-x: auto; }
+table  { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #f8fafc; padding: 10px 13px; text-align: left;
+           font-size: 10.5px; font-weight: 700; color: var(--muted);
+           text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
+tbody td { padding: 11px 13px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafc; }
+
+/* ===== PILL ===== */
+.pill { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.p-green { background: #e8f5e9; color: #2e7d32; }
+.p-red   { background: #fce4e4; color: #c62828; }
+.p-gold  { background: #fff8e1; color: #e65100; }
+.p-blue  { background: #e3f0ff; color: #1565c0; }
+.p-gray  { background: #f1f5f9; color: #475569; }
+
+/* ===== BUTTONS ===== */
+.btn { padding: 9px 17px; border-radius: 8px; font-size: 13px; font-weight: 600;
+       cursor: pointer; border: none; transition: all .14s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary2); }
+.btn-danger  { background: var(--accent); color: #fff; }
+.btn-danger:hover  { background: #c62828; }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: #f1f5f9; }
+.btn-pay   { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; font-size: 11.5px; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-pay:hover { background: #c8e6c9; }
+.btn-del   { background: #fce4e4; color: #c62828; border: 1.5px solid #ef9a9a; font-size: 11.5px; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-del:hover { background: #ffcdd2; }
+.btn-sm    { padding: 5px 11px; font-size: 12px; border-radius: 6px; }
+
+/* ===== TOOLBAR ===== */
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.search  { flex: 1; min-width: 160px; padding: 8px 13px; border: 1.5px solid var(--border);
+           border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; }
+.search:focus { border-color: var(--primary); }
+select.flt { padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 8px;
+             font-size: 13px; background: #fff; outline: none; cursor: pointer; font-family: inherit; }
+select.flt:focus { border-color: var(--primary); }
+
+/* ===== CLASS BOXES ===== */
+.class-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 13px; margin-bottom: 22px; }
+.cls-box { background: #fff; border-radius: 10px; padding: 16px 12px; text-align: center;
+           cursor: pointer; border: 2px solid transparent; transition: all .15s;
+           box-shadow: 0 1px 5px rgba(0,0,0,.07); }
+.cls-box:hover, .cls-box.selected { border-color: var(--primary); transform: translateY(-2px); }
+.cls-box .cn { font-size: 26px; font-weight: 800; color: var(--primary); }
+.cls-box .cl { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.cls-box .cc { font-size: 13px; font-weight: 600; color: var(--text); margin-top: 5px; }
+
+/* ===== PROGRESS ===== */
+.prog-bar  { height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+.prog-fill { height: 100%; border-radius: 4px; }
+
+/* ===== MODAL ===== */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+           z-index: 500; align-items: center; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 14px; padding: 26px; width: 500px;
+         max-width: 95vw; max-height: 92vh; overflow-y: auto; }
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+.fg { margin-bottom: 13px; }
+.fg label { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.fg input, .fg select { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border);
+                        border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; }
+.fg input:focus, .fg select:focus { border-color: var(--primary); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.modal-foot { display: flex; gap: 9px; justify-content: flex-end; margin-top: 18px; }
+
+/* ===== CONFIRM MODAL ===== */
+.confirm-body { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+.confirm-name { font-weight: 700; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+
+/* ===== ATTENDANCE CIRCLE ===== */
+.att-ring { width: 80px; height: 80px; border-radius: 50%; border: 7px solid;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.att-ring.hi  { border-color: #2e7d32; color: #2e7d32; }
+.att-ring.mid { border-color: #e65100; color: #e65100; }
+.att-ring.lo  { border-color: #c62828; color: #c62828; }
+.att-ring .rp { font-size: 17px; font-weight: 700; }
+.att-ring .rl { font-size: 9px; font-weight: 600; }
+
+/* ===== EMPTY STATE ===== */
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13.5px; }
+.empty .ei { font-size: 36px; margin-bottom: 10px; }
+
+/* ===== TOAST ===== */
+.toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #fff;
+         padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+         box-shadow: 0 4px 16px rgba(0,0,0,.2); z-index: 9999;
+         transform: translateY(80px); opacity: 0; transition: all .3s; pointer-events: none; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media(max-width:960px){
+  .stats-4 { grid-template-columns: 1fr 1fr; }
+  .class-grid { grid-template-columns: repeat(5,1fr); }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== SIDEBAR ====== -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <h2>🏫 Delhi Public School</h2>
+    <p>Principal Dashboard</p>
+  </div>
+  <nav>
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="go('dashboard',this)"><span class="ico">📊</span> Dashboard</div>
+    <div class="nav-label">Academics</div>
+    <div class="nav-item" onclick="go('classes',this)"><span class="ico">🏫</span> Class &amp; Students</div>
+    <div class="nav-item" onclick="go('teachers',this)"><span class="ico">👨‍🏫</span> Teacher Allotment</div>
+    <div class="nav-label">Finance</div>
+    <div class="nav-item" onclick="go('fees',this)"><span class="ico">💰</span> Student Fees</div>
+    <div class="nav-item" onclick="go('salary',this)"><span class="ico">💳</span> Teacher Salary</div>
+    <div class="nav-label">Records</div>
+    <div class="nav-item" onclick="go('attendance',this)"><span class="ico">📅</span> Attendance</div>
+  </nav>
+  <div class="sb-foot">Academic Year 2024–25</div>
+</aside>
+
+<!-- ====== MAIN ====== -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="pg-title">Dashboard</h1>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span style="font-size:12px;color:var(--muted)">Principal View</span>
+      <div class="avatar">PS</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ======== DASHBOARD ======== -->
+    <div class="page active" id="page-dashboard">
+      <div class="pg-title">School Overview</div>
+      <div class="pg-sub">Live summary — Academic Year 2024–25</div>
+
+      <div class="stats-row stats-4">
+        <div class="stat-card"><div class="st-icon blue">👨‍🎓</div><div class="st-info"><p>Total Students</p><h3 id="d-students">0</h3></div></div>
+        <div class="stat-card"><div class="st-icon green">👨‍🏫</div><div class="st-info"><p>Total Teachers</p><h3 id="d-teachers">0</h3></div></div>
+        <div class="stat-card"><div class="st-icon gold">💰</div><div class="st-info"><p>Fees Collected</p><h3 id="d-collected">₹0</h3></div></div>
+        <div class="stat-card"><div class="st-icon red">⚠️</div><div class="st-info"><p>Fees Pending</p><h3 id="d-pending">₹0</h3></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div><div class="card-title">Class-wise Student Strength</div><div class="card-sub">Students enrolled per class</div></div></div>
+          <div id="d-cls-table"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div><div class="card-title">Fee Collection by Class</div><div class="card-sub">Paid vs Total</div></div></div>
+          <div id="d-fee-bars"></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Attendance Snapshot (Class Average)</div></div>
+          <div id="d-att"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Teacher Salary Status</div></div>
+          <div id="d-salary"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== CLASS & STUDENTS ======== -->
+    <div class="page" id="page-classes">
+      <div class="pg-title">Class &amp; Students</div>
+      <div class="pg-sub">Click a class to view and manage its students</div>
+      <div class="class-grid" id="cls-grid"></div>
+
+      <div id="stu-card" style="display:none">
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title" id="stu-card-title">Students</div>
+              <div class="card-sub" id="stu-card-sub"></div>
+            </div>
+            <div style="display:flex;gap:9px;align-items:center">
+              <input class="search" style="width:170px;flex:none" placeholder="Search student…" oninput="filterStudents(this.value)" id="stu-search">
+              <button class="btn btn-primary btn-sm" onclick="openAddStudent()">+ Add Student</button>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Roll No</th><th>Student Name</th><th>Guardian</th><th>Phone</th><th>Fee Status</th><th>Attendance</th><th>Actions</th></tr></thead>
+              <tbody id="stu-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== TEACHERS ======== -->
+    <div class="page" id="page-teachers">
+      <div class="pg-title">Teacher Class Allotment</div>
+      <div class="pg-sub">Assign teachers to classes and manage allotments</div>
+      <div class="toolbar">
+        <input class="search" id="t-search" placeholder="Search teacher or subject…" oninput="applyTeacherFilter()">
+        <select class="flt" id="t-cls-flt" onchange="applyTeacherFilter()">
+          <option value="">All Classes</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddTeacher()">+ Add Allotment</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Teacher Name</th><th>Subject</th><th>Class</th><th>Section</th><th>Experience</th><th>Qualification</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="t-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== FEES ======== -->
+    <div class="page" id="page-fees">
+      <div class="pg-title">Student Fee Management</div>
+      <div class="pg-sub">Track payments, pending dues and fee history</div>
+      <div class="stats-row stats-3">
+        <div class="stat-card"><div class="st-icon green">✅</div><div class="st-info"><p>Total Collected</p><h3 id="f-col">₹0</h3></div></div>
+        <div class="stat-card"><div class="st-icon red">❌</div><div class="st-info"><p>Total Pending</p><h3 id="f-pen">₹0</h3></div></div>
+        <div class="stat-card"><div class="st-icon blue">📋</div><div class="st-info"><p>Students Tracked</p><h3 id="f-cnt">0</h3></div></div>
+      </div>
+      <div class="toolbar">
+        <input class="search" id="f-search" placeholder="Search name or roll no…" oninput="applyFeeFilter()">
+        <select class="flt" id="f-cls-flt" onchange="applyFeeFilter()">
+          <option value="">All Classes</option>
+          <option value="1">Class 1</option><option value="2">Class 2</option>
+          <option value="3">Class 3</option><option value="4">Class 4</option>
+          <option value="5">Class 5</option><option value="6">Class 6</option>
+          <option value="7">Class 7</option><option value="8">Class 8</option>
+          <option value="9">Class 9</option><option value="10">Class 10</option>
+        </select>
+        <select class="flt" id="f-sts-flt" onchange="applyFeeFilter()">
+          <option value="">All Status</option>
+          <option value="Paid">Paid</option>
+          <option value="Partial">Partial</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Roll No</th><th>Student Name</th><th>Class</th><th>Annual Fee</th><th>Paid</th><th>Pending</th><th>Last Payment</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="f-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== SALARY ======== -->
+    <div class="page" id="page-salary">
+      <div class="pg-title">Teacher Salary Management</div>
+      <div class="pg-sub">Monthly salary tracking and payment status</div>
+      <div class="stats-row stats-3">
+        <div class="stat-card"><div class="st-icon green">💸</div><div class="st-info"><p>Salary Paid</p><h3 id="s-paid">₹0</h3></div></div>
+        <div class="stat-card"><div class="st-icon red">⏳</div><div class="st-info"><p>Salary Pending</p><h3 id="s-pen">₹0</h3></div></div>
+        <div class="stat-card"><div class="st-icon blue">👩‍🏫</div><div class="st-info"><p>Total Teachers</p><h3 id="s-cnt">0</h3></div></div>
+      </div>
+      <div class="toolbar">
+        <input class="search" id="s-search" placeholder="Search teacher…" oninput="applySalaryFilter()">
+        <select class="flt" id="s-sts-flt" onchange="applySalaryFilter()">
+          <option value="">All Status</option>
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Teacher Name</th><th>Class / Subject</th><th>Designation</th><th>Monthly Salary</th><th>Month</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="s-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== ATTENDANCE ======== -->
+    <div class="page" id="page-attendance">
+      <div class="pg-title">Student Attendance</div>
+      <div class="pg-sub">Class-wise attendance records and percentage</div>
+      <div class="toolbar">
+        <select class="flt" id="a-cls-flt" onchange="applyAttFilter()">
+          <option value="">All Classes</option>
+        </select>
+        <select class="flt" id="a-sts-flt" onchange="applyAttFilter()">
+          <option value="">All Status</option>
+          <option value="hi">Good (75%+)</option>
+          <option value="mid">Average (50–74%)</option>
+          <option value="lo">Low (&lt;50%)</option>
+        </select>
+        <input class="search" id="a-search" placeholder="Search student…" oninput="applyAttFilter()">
+      </div>
+      <div class="grid3" id="a-summary" style="margin-bottom:18px"></div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Roll No</th><th>Student Name</th><th>Class</th><th>Present</th><th>Absent</th><th>Total Days</th><th>Attendance %</th><th>Status</th></tr></thead>
+            <tbody id="a-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ======== MODAL: Add Teacher ======== -->
+<div class="overlay" id="m-teacher">
+  <div class="modal">
+    <h3>Add Teacher Allotment</h3>
+    <div class="frow">
+      <div class="fg"><label>Teacher Name *</label><input id="f-tname" placeholder="Full name"></div>
+      <div class="fg"><label>Qualification *</label><input id="f-tqual" placeholder="e.g. M.Sc, B.Ed"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Subject *</label><input id="f-tsubj" placeholder="e.g. Mathematics"></div>
+      <div class="fg"><label>Class Assigned *</label>
+        <select id="f-tcls">
+          <option value="1">Class 1</option><option value="2">Class 2</option>
+          <option value="3">Class 3</option><option value="4">Class 4</option>
+          <option value="5">Class 5</option><option value="6">Class 6</option>
+          <option value="7">Class 7</option><option value="8">Class 8</option>
+          <option value="9">Class 9</option><option value="10">Class 10</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Section</label>
+        <select id="f-tsec"><option>A</option><option>B</option><option>C</option></select>
+      </div>
+      <div class="fg"><label>Experience (years)</label><input id="f-texp" type="number" min="0" placeholder="5"></div>
+    </div>
+    <div class="fg"><label>Monthly Salary (₹)</label><input id="f-tsal" type="number" min="0" placeholder="35000"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('m-teacher')">Cancel</button>
+      <button class="btn btn-primary" onclick="addTeacher()">Add Teacher</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODAL: Add Student ======== -->
+<div class="overlay" id="m-student">
+  <div class="modal">
+    <h3>Add Student</h3>
+    <div class="frow">
+      <div class="fg"><label>Student Name *</label><input id="f-sname" placeholder="Full name"></div>
+      <div class="fg"><label>Guardian Name</label><input id="f-sguard" placeholder="Parent / Guardian"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Phone Number</label><input id="f-sphone" placeholder="10-digit number"></div>
+      <div class="fg"><label>Annual Fee (₹)</label><input id="f-sfee" type="number" min="0" placeholder="12000"></div>
+    </div>
+    <div class="fg"><label>Amount Already Paid (₹)</label><input id="f-spaid" type="number" min="0" placeholder="0"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('m-student')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStudent()">Add Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODAL: Confirm Delete ======== -->
+<div class="overlay" id="m-confirm">
+  <div class="modal" style="width:400px">
+    <h3>Confirm Delete</h3>
+    <div class="confirm-body">You are about to remove:</div>
+    <div class="confirm-name" id="m-confirm-name"></div>
+    <div class="confirm-body" id="m-confirm-msg" style="margin-top:8px"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('m-confirm')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODAL: Mark Salary Paid ======== -->
+<div class="overlay" id="m-salary">
+  <div class="modal" style="width:400px">
+    <h3>Confirm Salary Payment</h3>
+    <div class="confirm-body">Mark salary as paid for:</div>
+    <div class="confirm-name" id="m-sal-name"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('m-salary')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSalary()">Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODAL: Mark Fee Paid ======== -->
+<div class="overlay" id="m-fee">
+  <div class="modal" style="width:400px">
+    <h3>Confirm Fee Payment</h3>
+    <div class="confirm-body">Mark full fee as paid for:</div>
+    <div class="confirm-name" id="m-fee-name"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('m-fee')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmFee()">Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== TOAST ======== -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+var CLASSES = ['1','2','3','4','5','6','7','8','9','10'];
+
+var teachers = [
+  {id:1, name:'Sunita Sharma',  subj:'Mathematics',     cls:'1',  sec:'A', exp:12, qual:'M.Sc, B.Ed',  sal:42000, paid:true,  month:'June 2025'},
+  {id:2, name:'Rajesh Kumar',   subj:'English',          cls:'2',  sec:'B', exp:8,  qual:'M.A, B.Ed',   sal:38000, paid:true,  month:'June 2025'},
+  {id:3, name:'Priya Menon',    subj:'Science',          cls:'3',  sec:'A', exp:5,  qual:'M.Sc, B.Ed',  sal:36000, paid:false, month:'June 2025'},
+  {id:4, name:'Amit Verma',     subj:'Social Studies',   cls:'4',  sec:'A', exp:10, qual:'M.A, B.Ed',   sal:40000, paid:true,  month:'June 2025'},
+  {id:5, name:'Meena Patel',    subj:'Hindi',            cls:'5',  sec:'B', exp:15, qual:'M.A, B.Ed',   sal:44000, paid:true,  month:'June 2025'},
+  {id:6, name:'Vikram Singh',   subj:'Mathematics',      cls:'6',  sec:'A', exp:7,  qual:'M.Sc, B.Ed',  sal:39000, paid:false, month:'June 2025'},
+  {id:7, name:'Deepa Rao',      subj:'English',          cls:'7',  sec:'C', exp:9,  qual:'M.A, B.Ed',   sal:41000, paid:true,  month:'June 2025'},
+  {id:8, name:'Ramesh Joshi',   subj:'Physics',          cls:'8',  sec:'A', exp:11, qual:'M.Sc, B.Ed',  sal:43000, paid:false, month:'June 2025'},
+  {id:9, name:'Anita Bose',     subj:'Chemistry',        cls:'9',  sec:'B', exp:13, qual:'M.Sc, B.Ed',  sal:45000, paid:true,  month:'June 2025'},
+  {id:10,name:'Kavita Nair',    subj:'Biology',          cls:'10', sec:'A', exp:16, qual:'M.Sc, B.Ed',  sal:46000, paid:false, month:'June 2025'},
+  {id:11,name:'Suresh Pillai',  subj:'Computer Science', cls:'10', sec:'B', exp:6,  qual:'M.Tech, B.Ed',sal:48000, paid:true,  month:'June 2025'},
+  {id:12,name:'Lata Gupta',     subj:'Art & Craft',      cls:'1',  sec:'B', exp:4,  qual:'B.F.A, B.Ed', sal:32000, paid:true,  month:'June 2025'},
+];
+
+var students = [];
+var _sid = 100;
+var _rolls = {};
+CLASSES.forEach(function(c){ _rolls[c] = 0; });
+
+var FIRST = ['Aarav','Diya','Rohan','Priya','Aditya','Kavya','Rahul','Sneha','Arjun','Ishaan',
+             'Pooja','Karan','Ananya','Vivek','Riya','Siddharth','Tanvi','Nikhil','Shruti','Pranav'];
+var LAST  = ['Sharma','Patel','Singh','Kumar','Verma','Nair','Rao','Gupta','Bose','Pillai','Joshi','Menon'];
+var GUARDS= ['Rajesh','Suresh','Amit','Vikram','Ramesh','Anita','Kavita','Meena','Deepa','Lata'];
+
+function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function rndInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+function feeStatus(paid, annual){
+  if(paid >= annual) return 'Paid';
+  if(paid > 0)       return 'Partial';
+  return 'Pending';
+}
+
+(function genStudents(){
+  CLASSES.forEach(function(c){
+    var count = rndInt(20,25);
+    for(var i=0;i<count;i++){
+      _rolls[c]++;
+      var annual = [10000,12000,14000,15000,18000][rndInt(0,4)];
+      var paid   = [0, Math.round(annual*0.25), Math.round(annual*0.5), Math.round(annual*0.75), annual][rndInt(0,4)];
+      var tot=120, pres=rndInt(70,120);
+      if(pres>tot)pres=tot;
+      students.push({
+        id: _sid++,
+        roll: c+'-'+pad3(_rolls[c]),
+        name: rnd(FIRST)+' '+rnd(LAST),
+        guardian: rnd(GUARDS)+' '+rnd(LAST),
+        phone: '9'+rndInt(0,9)+rndInt(1000000,9999999),
+        cls: c,
+        annual: annual,
+        paid: paid,
+        pending: annual - paid,
+        status: feeStatus(paid, annual),
+        lastPay: paid>0 ? ['Jan','Feb','Mar','Apr','May','Jun'][rndInt(0,5)]+' 2025' : '—',
+        dPres: pres, dAbs: tot-pres, dTot: tot,
+        att: Math.round(pres/tot*100)
+      });
+    }
+  });
+})();
+
+function pad3(n){ return n<10?'00'+n:n<100?'0'+n:''+n; }
+function num(n){ return n.toLocaleString('en-IN'); }
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+var activeCls    = null;
+var pendingDelId = null;
+var pendingDelType = null;
+var pendingSalId = null;
+var pendingFeeId = null;
+
+var feeFilter   = { q:'', cls:'', sts:'' };
+var salFilter   = { q:'', sts:'' };
+var attFilter   = { cls:'', sts:'', q:'' };
+var tFilter     = { q:'', cls:'' };
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+var pageTitles = {
+  dashboard: 'Dashboard',
+  classes:   'Class & Students',
+  teachers:  'Teacher Allotment',
+  fees:      'Student Fees',
+  salary:    'Teacher Salary',
+  attendance:'Attendance'
+};
+
+function go(page, el){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('pg-title').textContent = pageTitles[page] || page;
+  if(page==='dashboard')  loadDashboard();
+  if(page==='classes')    loadClasses();
+  if(page==='teachers')   loadTeachers();
+  if(page==='fees')       loadFees();
+  if(page==='salary')     loadSalary();
+  if(page==='attendance') loadAttendance();
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function toast(msg, color){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || '#1e293b';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+// ══════════════════════════════════════════
+//  MODAL HELPERS
+// ══════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click', function(e){
+    if(e.target === o) o.classList.remove('open');
+  });
+});
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+function loadDashboard(){
+  document.getElementById('d-students').textContent = students.length;
+  document.getElementById('d-teachers').textContent = teachers.length;
+  var col = students.reduce(function(a,s){return a+s.paid;},0);
+  var pen = students.reduce(function(a,s){return a+s.pending;},0);
+  document.getElementById('d-collected').textContent = '₹'+num(col);
+  document.getElementById('d-pending').textContent   = '₹'+num(pen);
+
+  // Class table
+  var html = '<table><thead><tr><th>Class</th><th>Students</th><th>Teacher</th><th>Att %</th></tr></thead><tbody>';
+  CLASSES.forEach(function(c){
+    var cs = students.filter(function(s){return s.cls===c;});
+    var t  = teachers.find(function(t){return t.cls===c;});
+    var avg= cs.length ? Math.round(cs.reduce(function(a,s){return a+s.att;},0)/cs.length) : 0;
+    html += '<tr><td><strong>Class '+c+'</strong></td><td>'+cs.length+'</td><td>'+(t?t.name:'—')+'</td><td>'+avg+'%</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('d-cls-table').innerHTML = html;
+
+  // Fee bars
+  var fb = '';
+  CLASSES.forEach(function(c){
+    var cs  = students.filter(function(s){return s.cls===c;});
+    var col2= cs.reduce(function(a,s){return a+s.paid;},0);
+    var tot = cs.reduce(function(a,s){return a+s.annual;},0);
+    var pct = tot>0 ? Math.round(col2/tot*100) : 0;
+    var clr = pct>=75?'#2e7d32':pct>=50?'#e65100':'#c62828';
+    fb += '<div style="margin-bottom:10px">'
+        + '<div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Class '+c+'</span>'
+        + '<span style="font-weight:700">'+pct+'%</span></div>'
+        + '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:'+clr+'"></div></div>'
+        + '</div>';
+  });
+  document.getElementById('d-fee-bars').innerHTML = fb;
+
+  // Attendance grid
+  var ag = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:9px">';
+  CLASSES.forEach(function(c){
+    var cs  = students.filter(function(s){return s.cls===c;});
+    var avg = cs.length ? Math.round(cs.reduce(function(a,s){return a+s.att;},0)/cs.length) : 0;
+    var clr = avg>=75?'#2e7d32':avg>=50?'#e65100':'#c62828';
+    ag += '<div style="text-align:center;padding:10px 6px;background:#f8fafc;border-radius:8px">'
+        + '<div style="font-size:10.5px;color:var(--muted)">Class '+c+'</div>'
+        + '<div style="font-size:20px;font-weight:800;color:'+clr+'">'+avg+'%</div>'
+        + '</div>';
+  });
+  ag += '</div>';
+  document.getElementById('d-att').innerHTML = ag;
+
+  // Salary
+  var sh = '<table><thead><tr><th>Teacher</th><th>Salary</th><th>Status</th></tr></thead><tbody>';
+  teachers.slice(0,6).forEach(function(t){
+    sh += '<tr><td>'+t.name+'</td><td>₹'+num(t.sal)+'</td>'
+        + '<td><span class="pill '+(t.paid?'p-green':'p-red')+'">'+(t.paid?'Paid':'Pending')+'</span></td></tr>';
+  });
+  sh += '</tbody></table>';
+  document.getElementById('d-salary').innerHTML = sh;
+}
+
+// ══════════════════════════════════════════
+//  CLASSES & STUDENTS
+// ══════════════════════════════════════════
+function loadClasses(){
+  var grid = document.getElementById('cls-grid');
+  grid.innerHTML = '';
+  CLASSES.forEach(function(c){
+    var cnt = students.filter(function(s){return s.cls===c;}).length;
+    var t   = teachers.find(function(t){return t.cls===c;});
+    var div = document.createElement('div');
+    div.className = 'cls-box' + (activeCls===c?' selected':'');
+    div.innerHTML = '<div class="cn">'+c+'</div><div class="cl">Class '+c+'</div>'
+                  + '<div class="cc">'+cnt+' Students</div>'
+                  + '<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(t?t.name:'—')+'</div>';
+    div.onclick = function(){ showClassStudents(c); };
+    grid.appendChild(div);
+  });
+  if(activeCls){ showClassStudents(activeCls); }
+}
+
+function showClassStudents(c){
+  activeCls = c;
+  document.querySelectorAll('.cls-box').forEach(function(b){
+    b.classList.remove('selected');
+  });
+  var boxes = document.querySelectorAll('.cls-box');
+  var idx = CLASSES.indexOf(c);
+  if(boxes[idx]) boxes[idx].classList.add('selected');
+
+  var card = document.getElementById('stu-card');
+  card.style.display = 'block';
+  document.getElementById('stu-card-title').textContent = 'Class '+c+' — Students';
+  var cnt = students.filter(function(s){return s.cls===c;}).length;
+  document.getElementById('stu-card-sub').textContent = cnt+' students enrolled';
+  document.getElementById('stu-search').value = '';
+  renderStudents(students.filter(function(s){return s.cls===c;}));
+}
+
+function renderStudents(list){
+  if(!list.length){
+    document.getElementById('stu-tbody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="ei">👨‍🎓</div>No students found.</div></td></tr>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(s){
+    var fc = s.status==='Paid'?'p-green':s.status==='Partial'?'p-gold':'p-red';
+    var ac = s.att>=75?'p-green':s.att>=50?'p-gold':'p-red';
+    html += '<tr>'
+          + '<td>'+s.roll+'</td>'
+          + '<td><strong>'+s.name+'</strong></td>'
+          + '<td>'+s.guardian+'</td>'
+          + '<td>'+s.phone+'</td>'
+          + '<td><span class="pill '+fc+'">'+s.status+'</span></td>'
+          + '<td><span class="pill '+ac+'">'+s.att+'%</span></td>'
+          + '<td><button class="btn-del" onclick="askDelete('+s.id+',\'student\')">🗑 Remove</button></td>'
+          + '</tr>';
+  });
+  document.getElementById('stu-tbody').innerHTML = html;
+}
+
+function filterStudents(q){
+  if(!activeCls) return;
+  var list = students.filter(function(s){
+    return s.cls===activeCls && (s.name.toLowerCase().indexOf(q.toLowerCase())>-1 || s.roll.indexOf(q)>-1);
+  });
+  renderStudents(list);
+}
+
+function openAddStudent(){ openModal('m-student'); }
+
+function addStudent(){
+  var name = document.getElementById('f-sname').value.trim();
+  if(!name){ alert('Please enter student name.'); return; }
+  var cls = activeCls || '1';
+  _rolls[cls] = (_rolls[cls]||0)+1;
+  var annual = parseInt(document.getElementById('f-sfee').value)||12000;
+  var paid   = parseInt(document.getElementById('f-spaid').value)||0;
+  if(paid > annual) paid = annual;
+  var tot=120, pres=85;
+  students.push({
+    id: _sid++,
+    roll: cls+'-'+pad3(_rolls[cls]),
+    name: name,
+    guardian: document.getElementById('f-sguard').value || '—',
+    phone:    document.getElementById('f-sphone').value || '—',
+    cls: cls, annual: annual, paid: paid, pending: annual-paid,
+    status: feeStatus(paid,annual),
+    lastPay: paid>0?'Jun 2025':'—',
+    dPres: pres, dAbs: tot-pres, dTot: tot, att: Math.round(pres/tot*100)
+  });
+  closeModal('m-student');
+  ['f-sname','f-sguard','f-sphone','f-sfee','f-spaid'].forEach(function(id){ document.getElementById(id).value=''; });
+  showClassStudents(cls);
+  toast('✅ Student added successfully!', '#2e7d32');
+}
+
+// ══════════════════════════════════════════
+//  TEACHERS
+// ══════════════════════════════════════════
+function loadTeachers(){
+  var flt = document.getElementById('t-cls-flt');
+  flt.innerHTML = '<option value="">All Classes</option>';
+  CLASSES.forEach(function(c){ flt.innerHTML += '<option value="'+c+'">Class '+c+'</option>'; });
+  renderTeachers(teachers);
+}
+
+function renderTeachers(list){
+  if(!list.length){
+    document.getElementById('t-tbody').innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">👨‍🏫</div>No teachers found.</div></td></tr>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(t){
+    html += '<tr>'
+          + '<td><strong>'+t.name+'</strong></td>'
+          + '<td>'+t.subj+'</td>'
+          + '<td>Class '+t.cls+'</td>'
+          + '<td>Section '+t.sec+'</td>'
+          + '<td>'+t.exp+' yrs</td>'
+          + '<td>'+t.qual+'</td>'
+          + '<td><span class="pill p-green">Active</span></td>'
+          + '<td><button class="btn-del" onclick="askDelete('+t.id+',\'teacher\')">🗑 Remove</button></td>'
+          + '</tr>';
+  });
+  document.getElementById('t-tbody').innerHTML = html;
+}
+
+function applyTeacherFilter(){
+  tFilter.q   = document.getElementById('t-search').value.toLowerCase();
+  tFilter.cls = document.getElementById('t-cls-flt').value;
+  var list = teachers.filter(function(t){
+    var ok = true;
+    if(tFilter.q)   ok = ok && (t.name.toLowerCase().indexOf(tFilter.q)>-1 || t.subj.toLowerCase().indexOf(tFilter.q)>-1);
+    if(tFilter.cls) ok = ok && t.cls===tFilter.cls;
+    return ok;
+  });
+  renderTeachers(list);
+}
+
+function openAddTeacher(){ openModal('m-teacher'); }
+
+function addTeacher(){
+  var name = document.getElementById('f-tname').value.trim();
+  if(!name){ alert('Please enter teacher name.'); return; }
+  var subj = document.getElementById('f-tsubj').value.trim();
+  if(!subj){ alert('Please enter subject.'); return; }
+  var tid = teachers.length ? teachers[teachers.length-1].id+1 : 1;
+  teachers.push({
+    id: tid,
+    name: name, subj: subj,
+    cls:  document.getElementById('f-tcls').value,
+    sec:  document.getElementById('f-tsec').value,
+    exp:  parseInt(document.getElementById('f-texp').value)||0,
+    qual: document.getElementById('f-tqual').value || '—',
+    sal:  parseInt(document.getElementById('f-tsal').value)||35000,
+    paid: false, month: 'June 2025'
+  });
+  closeModal('m-teacher');
+  ['f-tname','f-tqual','f-tsubj','f-texp','f-tsal'].forEach(function(id){ document.getElementById(id).value=''; });
+  loadTeachers();
+  toast('✅ Teacher allotment added!', '#2e7d32');
+}
+
+// ══════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════
+function askDelete(id, type){
+  pendingDelId   = id;
+  pendingDelType = type;
+  var entity = type==='student' ? students.find(function(s){return s.id===id;})
+                                : teachers.find(function(t){return t.id===id;});
+  if(!entity) return;
+  document.getElementById('m-confirm-name').textContent = entity.name;
+  document.getElementById('m-confirm-msg').textContent  =
+    type==='student'
+      ? 'This will permanently remove the student and all their records.'
+      : 'This will permanently remove the teacher and their allotment.';
+  openModal('m-confirm');
+}
+
+function confirmDelete(){
+  if(pendingDelType==='student'){
+    var idx = students.findIndex(function(s){return s.id===pendingDelId;});
+    if(idx>-1){
+      var cls = students[idx].cls;
+      students.splice(idx,1);
+      closeModal('m-confirm');
+      toast('🗑 Student removed.', '#c62828');
+      showClassStudents(cls);
+      loadClasses();
+    }
+  } else if(pendingDelType==='teacher'){
+    var idx2 = teachers.findIndex(function(t){return t.id===pendingDelId;});
+    if(idx2>-1){
+      teachers.splice(idx2,1);
+      closeModal('m-confirm');
+      toast('🗑 Teacher removed.', '#c62828');
+      applyTeacherFilter();
+    }
+  }
+  pendingDelId = null; pendingDelType = null;
+}
+
+// ══════════════════════════════════════════
+//  FEES
+// ══════════════════════════════════════════
+function loadFees(){
+  updateFeeStats();
+  renderFees(students);
+}
+
+function updateFeeStats(){
+  var col = students.reduce(function(a,s){return a+s.paid;},0);
+  var pen = students.reduce(function(a,s){return a+s.pending;},0);
+  document.getElementById('f-col').textContent = '₹'+num(col);
+  document.getElementById('f-pen').textContent = '₹'+num(pen);
+  document.getElementById('f-cnt').textContent = students.length;
+}
+
+function renderFees(list){
+  if(!list.length){
+    document.getElementById('f-tbody').innerHTML = '<tr><td colspan="9"><div class="empty"><div class="ei">💰</div>No records found.</div></td></tr>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(s){
+    var fc = s.status==='Paid'?'p-green':s.status==='Partial'?'p-gold':'p-red';
+    html += '<tr>'
+          + '<td>'+s.roll+'</td>'
+          + '<td><strong>'+s.name+'</strong></td>'
+          + '<td>Class '+s.cls+'</td>'
+          + '<td>₹'+num(s.annual)+'</td>'
+          + '<td style="color:#2e7d32;font-weight:600">₹'+num(s.paid)+'</td>'
+          + '<td style="color:'+(s.pending>0?'#c62828':'#2e7d32')+';font-weight:600">₹'+num(s.pending)+'</td>'
+          + '<td>'+s.lastPay+'</td>'
+          + '<td><span class="pill '+fc+'">'+s.status+'</span></td>'
+          + '<td>'+(s.pending>0
+              ? '<button class="btn-pay" onclick="askFee('+s.id+')">✅ Mark Paid</button>'
+              : '<span style="color:var(--muted);font-size:11.5px">Cleared</span>')
+          + '</td></tr>';
+  });
+  document.getElementById('f-tbody').innerHTML = html;
+}
+
+function applyFeeFilter(){
+  feeFilter.q   = document.getElementById('f-search').value.toLowerCase();
+  feeFilter.cls = document.getElementById('f-cls-flt').value;
+  feeFilter.sts = document.getElementById('f-sts-flt').value;
+  var list = students.filter(function(s){
+    var ok = true;
+    if(feeFilter.q)   ok = ok && (s.name.toLowerCase().indexOf(feeFilter.q)>-1 || s.roll.indexOf(feeFilter.q)>-1);
+    if(feeFilter.cls) ok = ok && s.cls===feeFilter.cls;
+    if(feeFilter.sts) ok = ok && s.status===feeFilter.sts;
+    return ok;
+  });
+  renderFees(list);
+}
+
+function askFee(id){
+  pendingFeeId = id;
+  var s = students.find(function(s){return s.id===id;});
+  if(!s) return;
+  document.getElementById('m-fee-name').textContent = s.name+' ('+s.roll+') — ₹'+num(s.pending)+' pending';
+  openModal('m-fee');
+}
+
+function confirmFee(){
+  var s = students.find(function(s){return s.id===pendingFeeId;});
+  if(s){
+    s.paid    = s.annual;
+    s.pending = 0;
+    s.status  = 'Paid';
+    s.lastPay = 'Jun 2025';
+  }
+  closeModal('m-fee');
+  pendingFeeId = null;
+  updateFeeStats();
+  applyFeeFilter();
+  toast('✅ Fee marked as paid!', '#2e7d32');
+}
+
+// ══════════════════════════════════════════
+//  SALARY
+// ══════════════════════════════════════════
+function loadSalary(){
+  updateSalaryStats();
+  renderSalary(teachers);
+}
+
+function updateSalaryStats(){
+  var paid = teachers.filter(function(t){return t.paid;}).reduce(function(a,t){return a+t.sal;},0);
+  var pen  = teachers.filter(function(t){return !t.paid;}).reduce(function(a,t){return a+t.sal;},0);
+  document.getElementById('s-paid').textContent = '₹'+num(paid);
+  document.getElementById('s-pen').textContent  = '₹'+num(pen);
+  document.getElementById('s-cnt').textContent  = teachers.length;
+}
+
+function renderSalary(list){
+  if(!list.length){
+    document.getElementById('s-tbody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="ei">💳</div>No records found.</div></td></tr>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(t){
+    html += '<tr>'
+          + '<td><strong>'+t.name+'</strong></td>'
+          + '<td>Class '+t.cls+' · '+t.subj+'</td>'
+          + '<td>'+(t.exp>10?'Senior Teacher':'Teacher')+'</td>'
+          + '<td>₹'+num(t.sal)+'</td>'
+          + '<td>'+t.month+'</td>'
+          + '<td><span class="pill '+(t.paid?'p-green':'p-red')+'">'+(t.paid?'Paid':'Pending')+'</span></td>'
+          + '<td>'+(t.paid
+              ? '<span style="color:var(--muted);font-size:11.5px">Cleared</span>'
+              : '<button class="btn-pay" onclick="askSalary('+t.id+')">💸 Pay Now</button>')
+          + '</td></tr>';
+  });
+  document.getElementById('s-tbody').innerHTML = html;
+}
+
+function applySalaryFilter(){
+  salFilter.q   = document.getElementById('s-search').value.toLowerCase();
+  salFilter.sts = document.getElementById('s-sts-flt').value;
+  var list = teachers.filter(function(t){
+    var ok = true;
+    if(salFilter.q)   ok = ok && t.name.toLowerCase().indexOf(salFilter.q)>-1;
+    if(salFilter.sts) ok = ok && (salFilter.sts==='Paid'?t.paid:!t.paid);
+    return ok;
+  });
+  renderSalary(list);
+}
+
+function askSalary(id){
+  pendingSalId = id;
+  var t = teachers.find(function(t){return t.id===id;});
+  if(!t) return;
+  document.getElementById('m-sal-name').textContent = t.name+' — ₹'+num(t.sal)+' for '+t.month;
+  openModal('m-salary');
+}
+
+function confirmSalary(){
+  var t = teachers.find(function(t){return t.id===pendingSalId;});
+  if(t) t.paid = true;
+  closeModal('m-salary');
+  pendingSalId = null;
+  updateSalaryStats();
+  applySalaryFilter();
+  toast('✅ Salary marked as paid!', '#2e7d32');
+}
+
+// ══════════════════════════════════════════
+//  ATTENDANCE
+// ══════════════════════════════════════════
+function loadAttendance(){
+  var flt = document.getElementById('a-cls-flt');
+  flt.innerHTML = '<option value="">All Classes</option>';
+  CLASSES.forEach(function(c){ flt.innerHTML += '<option value="'+c+'">Class '+c+'</option>'; });
+  renderAttSummary('');
+  renderAtt(students);
+}
+
+function renderAttSummary(cls){
+  var show = cls ? [cls] : CLASSES.slice(0,3);
+  var html = '';
+  show.forEach(function(c){
+    var cs   = students.filter(function(s){return s.cls===c;});
+    var avg  = cs.length ? Math.round(cs.reduce(function(a,s){return a+s.att;},0)/cs.length) : 0;
+    var hi   = cs.filter(function(s){return s.att>=75;}).length;
+    var lo   = cs.filter(function(s){return s.att<50;}).length;
+    var ring = avg>=75?'hi':avg>=50?'mid':'lo';
+    html += '<div class="card" style="margin-bottom:0;display:flex;align-items:center;gap:18px">'
+          + '<div class="att-ring '+ring+'"><span class="rp">'+avg+'%</span><span class="rl">Avg</span></div>'
+          + '<div>'
+          + '<div style="font-size:13px;font-weight:700;margin-bottom:4px">Class '+c+'</div>'
+          + '<div style="font-size:12px;color:var(--muted)">'+cs.length+' Students</div>'
+          + '<div style="font-size:12px;color:#2e7d32;margin-top:3px">✅ Good: '+hi+'</div>'
+          + '<div style="font-size:12px;color:#c62828">❌ Low: '+lo+'</div>'
+          + '</div></div>';
+  });
+  document.getElementById('a-summary').innerHTML = html||'<div style="grid-column:span 3;text-align:center;color:var(--muted);font-size:13px;padding:20px">Select a class above to see summary</div>';
+}
+
+function applyAttFilter(){
+  attFilter.cls = document.getElementById('a-cls-flt').value;
+  attFilter.sts = document.getElementById('a-sts-flt').value;
+  attFilter.q   = document.getElementById('a-search').value.toLowerCase();
+  renderAttSummary(attFilter.cls);
+  renderAtt(getFilteredAtt());
+}
+
+function getFilteredAtt(){
+  return students.filter(function(s){
+    var ok = true;
+    if(attFilter.cls) ok = ok && s.cls===attFilter.cls;
+    if(attFilter.sts==='hi')  ok = ok && s.att>=75;
+    if(attFilter.sts==='mid') ok = ok && s.att>=50 && s.att<75;
+    if(attFilter.sts==='lo')  ok = ok && s.att<50;
+    if(attFilter.q)   ok = ok && s.name.toLowerCase().indexOf(attFilter.q)>-1;
+    return ok;
+  });
+}
+
+function renderAtt(list){
+  if(!list.length){
+    document.getElementById('a-tbody').innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">📅</div>No records found.</div></td></tr>';
+    return;
+  }
+  var html='';
+  list.forEach(function(s){
+    var ac    = s.att>=75?'p-green':s.att>=50?'p-gold':'p-red';
+    var label = s.att>=75?'Good':s.att>=50?'Average':'Low';
+    html += '<tr>'
+          + '<td>'+s.roll+'</td>'
+          + '<td><strong>'+s.name+'</strong></td>'
+          + '<td>Class '+s.cls+'</td>'
+          + '<td style="color:#2e7d32;font-weight:600">'+s.dPres+'</td>'
+          + '<td style="color:#c62828;font-weight:600">'+s.dAbs+'</td>'
+          + '<td>'+s.dTot+'</td>'
+          + '<td><strong>'+s.att+'%</strong></td>'
+          + '<td><span class="pill '+ac+'">'+label+'</span></td>'
+          + '</tr>';
+  });
+  document.getElementById('a-tbody').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+loadDashboard();
+loadClasses();
+</script>
+</body>
+</html>
